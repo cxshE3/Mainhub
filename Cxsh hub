@@ -1,0 +1,33 @@
+-- Configuration
+local oldName = "Florest"
+local newName = "Cxsh"
+
+-- Function to replace text in an object
+local function replaceText(obj)
+    if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+        obj.Text = obj.Text:gsub(oldName, newName)
+        
+        -- Keep replacing if the script tries to change it back later
+        obj:GetPropertyChangedSignal("Text"):Connect(function()
+            if obj.Text:find(oldName) then
+                obj.Text = obj.Text:gsub(oldName, newName)
+            end
+        end)
+    end
+    
+    -- Rename objects themselves if they are named after the script
+    if obj.Name:find(oldName) then
+        obj.Name = obj.Name:gsub(oldName, newName)
+    end
+end
+
+-- Monitor for new UI elements (CoreGui is where most scripts hide their UI)
+game.CoreGui.DescendantAdded:Connect(replaceText)
+game.Players.LocalPlayer.PlayerGui.DescendantAdded:Connect(replaceText)
+
+-- Scan existing UI elements
+for _, v in pairs(game.CoreGui:GetDescendants()) do replaceText(v) end
+for _, v in pairs(game.Players.LocalPlayer.PlayerGui:GetDescendants()) do replaceText(v) end
+
+-- Execute the original script
+loadstring(game:HttpGet('https://api.luarmor.net/files/v4/loaders/167d144e82a977ac6b750c5f90c98819.lua'))()
